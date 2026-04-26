@@ -35,18 +35,18 @@ export const COPIES_PER_UNIT: Record<CostTier, number> = {
   5: 9,
 };
 
-// ─── Verify this block each new set (count in-game Collection tab) ────────────
+// ─── Verify this block each new set (count from champion list) ───────────────
 //
 // Number of distinct champions at each cost tier in Set 17.
-// NOT available from MetaTFT shop-odds page — must be counted in-game.
+// Source: mobalytics.gg/tft/champions, counted 2026-04-26.
+// 1-cost Talon appeared in both tier lists on the page — counted once under tier 1.
 // Drives costsLeft in the hypergeometric formula; wrong values = wrong odds.
-// The UNITS_PER_COST test in tft-data.test.ts fails until these are filled in.
 export const UNITS_PER_COST: Record<CostTier, number> = {
-  1: 0, // TODO: count from in-game Collection tab, filtered by cost
-  2: 0,
-  3: 0,
-  4: 0,
-  5: 0,
+  1: 14, // Aatrox Briar Caitlyn Cho'Gath Ezreal Leona Lissandra Nasus Poppy Rek'Sai Talon Teemo Twisted Fate Veigar
+  2: 13, // Akali Bel'Veth Gnar Gragas Gwen Jax Jinx Meepsie Milio Mordekaiser Pantheon Pyke Zoe
+  3: 12, // Aurora Diana Fizz Illaoi Kai'Sa Lulu Maokai Miss Fortune Rhaast Samira Urgot Viktor
+  4: 13, // Aurelion Sol Corki Karma Kindred LeBlanc Master Yi Nami Nunu Rammus Riven Tahm Kench Xayah The Mighty Mech
+  5: 10, // Bard Blitzcrank Fiora Graves Jhin Morgana Shen Sona Vex Zed
 };
 
 // ─── Derived ──────────────────────────────────────────────────────────────────
