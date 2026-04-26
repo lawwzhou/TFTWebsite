@@ -44,7 +44,7 @@ export const COPIES_PER_UNIT: Record<CostTier, number> = {
 export const UNITS_PER_COST: Record<CostTier, number> = {
   1: 14, // Aatrox Briar Caitlyn Cho'Gath Ezreal Leona Lissandra Nasus Poppy Rek'Sai Talon Teemo Twisted Fate Veigar
   2: 13, // Akali Bel'Veth Gnar Gragas Gwen Jax Jinx Meepsie Milio Mordekaiser Pantheon Pyke Zoe
-  3: 12, // Aurora Diana Fizz Illaoi Kai'Sa Lulu Maokai Miss Fortune Rhaast Samira Urgot Viktor
+  3: 13, // Aurora Diana Fizz Illaoi Kai'Sa Lulu Maokai Miss Fortune Ornn Rhaast Samira Urgot Viktor
   4: 13, // Aurelion Sol Corki Karma Kindred LeBlanc Master Yi Nami Nunu Rammus Riven Tahm Kench Xayah The Mighty Mech
   5: 10, // Bard Blitzcrank Fiora Graves Jhin Morgana Shen Sona Vex Zed
 };
