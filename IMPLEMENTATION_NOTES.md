@@ -173,3 +173,27 @@
 - If the user bookmarks a URL then the set changes (new set resets pool sizes), the numeric params will silently use the new set's data, which is correct behavior.
 
 **Next recommended step:** Economy Guide page (interest table, XP costs, should-I-roll helper) or Trait Reference page.
+
+---
+
+## 2026-04-26 · Economy Guide page + shared navigation (`src/app/economy/`, `src/components/SiteHeader.tsx`, `src/lib/economy-data.ts`)
+
+**Task completed:** Economy Guide second page with interactive income calculator, interest threshold table, win/lose streak bonus tables, XP & leveling reference, and a "When to Roll" HP-based decision guide. Shared `SiteHeader` with pill navigation between pages.
+
+**Reasoning:** The site needed a second page to become a general TFT reference tool rather than a single-purpose calculator. Economy decisions (interest, streaks, when to roll) are the most universally searched TFT information and map cleanly to static + lightly interactive content.
+
+**Decisions made:**
+- **Shared `SiteHeader` component:** Extracted from `page.tsx` into `src/components/SiteHeader.tsx` (`'use client'` for `usePathname`). Moved into `layout.tsx` so it renders on every page. Title changed from "TFT Rolling Odds" to "TFT Tools" to reflect the multi-page scope.
+- **Economy page is `'use client'`:** The income calculator uses sliders with React state (`gold`, `streak`, `won`). Making the entire page a client component was simpler than a server page + client component split for what is static data + minimal interaction.
+- **`src/lib/economy-data.ts`:** Separate data file following the same pattern as `tft-data.ts`. Contains interest table, streak tables, level XP table, and helper functions (`getInterest`, `getWinStreakBonus`, `getLoseStreakBonus`). Pure functions — easy to test if values need verification.
+- **XP table labeled approximate:** XP costs change each set/patch and I have moderate confidence in the specific values. The table includes a clear caveat and shows "max gold cost" (buying all XP from scratch) so players understand the real cost after natural gain is lower.
+- **Streak values used:** Win: 0–1 = 0g, 2–3 = +1g, 4–5 = +2g, 6+ = +3g. Lose: 0 = 0g, 1–2 = +1g, 3–4 = +2g, 5+ = +3g. Standard values — may vary slightly by patch.
+- **Income bar visualization:** A single segmented bar breaks down the income into base/interest/win/streak portions to show relative contribution at a glance.
+- **`KEY_LEVEL_UNLOCKS` map:** Annotates levels 6–9 in the XP table with why reaching that level matters (e.g., "best 5-cost odds" at level 9), giving the table strategic context beyond raw numbers.
+
+**Future concerns:**
+- XP values and streak breakpoints should be re-verified at the start of each set — they are approximate for Set 17.
+- The income calculator assumes a standard round (no augments that modify income, no trait bonuses). Players with economy augments will see different numbers.
+- Natural XP gain per round (used to derive real level-up cost from the "max" table) varies by stage and is not currently shown in the guide.
+
+**Next recommended step:** Trait Reference page (searchable Set 17 trait list with breakpoints) or Item Crafter (component combination lookup).
