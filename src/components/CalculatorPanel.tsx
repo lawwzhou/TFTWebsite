@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCalculatorStore } from '@/store/calculator';
 import type { CostTier, PlayerLevel } from '@/types/tft';
 import { CHAMPIONS, COPIES_PER_UNIT, TOTAL_POOL } from '@/lib/tft-data';
@@ -84,6 +84,57 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
     <div className={`bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 ${className}`}>
       {children}
     </div>
+  );
+}
+
+// ─── Controlled number input ─────────────────────────────────────────────────
+// Keeps a local string so the field can be empty mid-edit without snapping to 0.
+// Commits to the store on blur (or on valid mid-type values); normalises on blur.
+
+interface NumberInputProps {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  className?: string;
+}
+
+function NumberInput({ value, onChange, min = 0, max, step, className }: NumberInputProps) {
+  const [local, setLocal] = useState(String(value));
+  const focused = useRef(false);
+
+  // Sync from store when blurred (e.g. cost tier change resets max)
+  useEffect(() => {
+    if (!focused.current) setLocal(String(value));
+  }, [value]);
+
+  return (
+    <input
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      value={local}
+      onFocus={e => { focused.current = true; e.target.select(); }}
+      onChange={e => {
+        setLocal(e.target.value);
+        // Commit mid-type only when there's a parseable value
+        if (e.target.value !== '' && !isNaN(Number(e.target.value))) {
+          const clamped = Math.min(max ?? Infinity, Math.max(min, Number(e.target.value)));
+          onChange(clamped);
+        }
+      }}
+      onBlur={() => {
+        focused.current = false;
+        const n = local === '' || isNaN(Number(local))
+          ? min
+          : Math.min(max ?? Infinity, Math.max(min, Number(local)));
+        onChange(n);
+        setLocal(String(n));
+      }}
+      className={className}
+    />
   );
 }
 
@@ -214,13 +265,11 @@ function InputPanel() {
           <div className="absolute left-3 top-1/2 -translate-y-1/2">
             <GoldIcon />
           </div>
-          <input
-            type="number"
+          <NumberInput
+            value={store.gold}
+            onChange={store.setGold}
             min={0}
             step={2}
-            value={store.gold}
-            onFocus={e => e.target.select()}
-            onChange={e => store.setGold(Math.max(0, Number(e.target.value)))}
             className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">
@@ -236,13 +285,11 @@ function InputPanel() {
             <div className="absolute left-3 top-1/2 -translate-y-1/2 flex gap-0.5">
               <StarIcon filled={true} />
             </div>
-            <input
-              type="number"
+            <NumberInput
+              value={store.copiesOwned}
+              onChange={store.setCopiesOwned}
               min={0}
               max={9}
-              value={store.copiesOwned}
-              onFocus={e => e.target.select()}
-              onChange={e => store.setCopiesOwned(Math.min(9, Math.max(0, Number(e.target.value))))}
               className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">
@@ -257,13 +304,11 @@ function InputPanel() {
             <div className="absolute left-3 top-1/2 -translate-y-1/2">
               <PersonIcon />
             </div>
-            <input
-              type="number"
+            <NumberInput
+              value={store.copiesTaken}
+              onChange={store.setCopiesTaken}
               min={0}
               max={maxCopies}
-              value={store.copiesTaken}
-              onFocus={e => e.target.select()}
-              onChange={e => store.setCopiesTaken(Math.min(maxCopies, Math.max(0, Number(e.target.value))))}
               className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">
