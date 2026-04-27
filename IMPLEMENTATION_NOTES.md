@@ -150,3 +150,26 @@
 - URL param sharing would need to serialize `modelMode` and `otherCostTaken` as well.
 
 **Next recommended step:** URL param sharing so calculator states can be linked/shared.
+
+---
+
+## 2026-04-26 · URL param sharing (`src/components/CalculatorPanel.tsx`)
+
+**Task completed:** Full URL state serialization — calculator state is encoded in the URL search params and a "Share" copy-link button lets players copy the URL to clipboard.
+
+**Reasoning:** Without URL sharing, a player who finds a useful setup (e.g., "level 8, 3-cost, Ornn, 2 copies taken, exact mode") cannot link a teammate or streamer to the same view. URL params solve this without any server or database.
+
+**Decisions made:**
+- **`URLSyncInner` + `URLSync` pattern:** `useSearchParams()` requires a `Suspense` boundary in Next.js App Router. `URLSyncInner` is the actual logic component; `URLSync` wraps it in `<Suspense>` and is rendered inside the root `CalculatorPanel`.
+- **Hydration gate (`ready` state):** A `useState(false)` flag (`ready`) prevents the URL-update effect from running before the mount hydration completes. Without it, the first effect run would overwrite URL params with default store values before the hydration effect had a chance to apply them.
+- **Stable refs for mount effect:** `initParams` and `actions` refs capture initial `searchParams` and store setters at mount time so the hydration `useEffect` can use an empty deps array without ESLint warnings. Zustand setters are stable across renders; the initial searchParams never changes.
+- **Params encoded:** `level`, `gold`, `cost` (unitCost), `owned`, `taken`, `mode` (modelMode), `other` (otherCostTaken). All 7 inputs round-trip correctly.
+- **Validation on hydration:** Each param is only applied if it's present and in the valid range (e.g., level 2–11, cost 1–5, owned 0–9). Invalid/missing params fall through to store defaults.
+- **`router.replace` with `{ scroll: false }`:** Updates URL without adding to browser history and without scrolling. Users can still navigate back to the previous page normally.
+- **Copy link button:** `CopyLinkButton` copies `window.location.href` to clipboard using the Clipboard API; shows a green "Copied!" confirmation for 2 seconds then resets. Placed inline next to the model badge in `ResultsPanel` header for discoverability.
+
+**Future concerns:**
+- Champion name is not serialized (it's local state in `InputPanel`). Sharing a URL restores cost tier and all numeric inputs but not the typed champion name. This is cosmetic — the math is fully correct.
+- If the user bookmarks a URL then the set changes (new set resets pool sizes), the numeric params will silently use the new set's data, which is correct behavior.
+
+**Next recommended step:** Economy Guide page (interest table, XP costs, should-I-roll helper) or Trait Reference page.

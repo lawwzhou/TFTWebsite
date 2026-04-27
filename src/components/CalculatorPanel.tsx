@@ -1,7 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useCalculatorStore, type ModelMode } from '@/store/calculator';
 import type { CostTier, PlayerLevel } from '@/types/tft';
 import { CHAMPIONS, COPIES_PER_UNIT, TOTAL_POOL } from '@/lib/tft-data';
@@ -405,6 +406,7 @@ function ResultsPanel({ params, copiesOwned, results, modelMode }: { params: Tra
             <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${modelMode === 'exact' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>
               {modelMode}
             </span>
+            <CopyLinkButton />
           </div>
           <p className="text-xs text-gray-500 mt-0.5">Probability of hitting by roll N</p>
         </div>
@@ -511,6 +513,117 @@ function StatsPanel({ params, copiesOwned, gold }: { params: TransitionParams; c
   );
 }
 
+// ─── URL param sync ───────────────────────────────────────────────────────────
+// Reads URL params on mount → hydrates store; writes store changes → URL.
+// Wrapped in Suspense because useSearchParams() requires a Suspense boundary.
+
+function URLSyncInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const store = useCalculatorStore();
+
+  // Capture initial refs so the mount-only effect has no missing-deps warning
+  const initParams = useRef(searchParams);
+  const actions = useRef({
+    setLevel: store.setLevel,
+    setGold: store.setGold,
+    setUnitCost: store.setUnitCost,
+    setCopiesOwned: store.setCopiesOwned,
+    setCopiesTaken: store.setCopiesTaken,
+    setModelMode: store.setModelMode,
+    setOtherCostTaken: store.setOtherCostTaken,
+  });
+
+  const [ready, setReady] = useState(false);
+
+  // Hydrate once on mount
+  useEffect(() => {
+    const p = initParams.current;
+    const a = actions.current;
+    const level = Number(p.get('level'));
+    const gold = Number(p.get('gold'));
+    const cost = Number(p.get('cost'));
+    const owned = Number(p.get('owned'));
+    const taken = Number(p.get('taken'));
+    const mode = p.get('mode');
+    const other = Number(p.get('other'));
+
+    if (p.has('level') && level >= 2 && level <= 11) a.setLevel(level as PlayerLevel);
+    if (p.has('gold') && gold >= 0) a.setGold(gold);
+    if (p.has('cost') && cost >= 1 && cost <= 5) a.setUnitCost(cost as CostTier);
+    if (p.has('owned') && owned >= 0 && owned <= 9) a.setCopiesOwned(owned);
+    if (p.has('taken') && taken >= 0) a.setCopiesTaken(taken);
+    if (mode === 'approximate' || mode === 'exact') a.setModelMode(mode);
+    if (p.has('other') && other >= 0) a.setOtherCostTaken(other);
+
+    setReady(true);
+  }, []);
+
+  const { level, gold, unitCost, copiesOwned, copiesTaken, modelMode, otherCostTaken } = store;
+
+  // Push store state to URL whenever it changes (gated on initial hydration)
+  useEffect(() => {
+    if (!ready) return;
+    const params = new URLSearchParams({
+      level: String(level),
+      gold: String(gold),
+      cost: String(unitCost),
+      owned: String(copiesOwned),
+      taken: String(copiesTaken),
+      mode: modelMode,
+      other: String(otherCostTaken),
+    });
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [ready, level, gold, unitCost, copiesOwned, copiesTaken, modelMode, otherCostTaken, router]);
+
+  return null;
+}
+
+function URLSync() {
+  return (
+    <Suspense>
+      <URLSyncInner />
+    </Suspense>
+  );
+}
+
+// ─── Copy link button ────────────────────────────────────────────────────────
+
+function CopyLinkButton() {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-amber-400 transition-colors px-2 py-1 rounded-lg hover:bg-[#1e1e2e]"
+    >
+      {copied ? (
+        <>
+          <svg className="w-3.5 h-3.5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span className="text-green-400">Copied!</span>
+        </>
+      ) : (
+        <>
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          Share
+        </>
+      )}
+    </button>
+  );
+}
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function CalculatorPanel() {
@@ -527,7 +640,9 @@ export default function CalculatorPanel() {
   const results = computeRollOdds(copiesOwned, params, Math.floor(gold / 2));
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-7xl mx-auto w-full">
+    <>
+      <URLSync />
+      <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-7xl mx-auto w-full">
       {/* Left: inputs */}
       <div className="w-full lg:w-64 shrink-0">
         <InputPanel />
@@ -539,5 +654,6 @@ export default function CalculatorPanel() {
         <StatsPanel params={params} copiesOwned={copiesOwned} gold={gold} />
       </div>
     </div>
+    </>
   );
 }
