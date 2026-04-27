@@ -103,3 +103,30 @@
 - No URL param sharing yet — can't link to a specific calculator state.
 
 **Next recommended step:** Probability curve chart (visual complement to the table), or URL param sharing for shareable builds.
+
+---
+
+## 2026-04-26 · UI redesign + charts + stats (`CalculatorPanel`, `OddsChart`, `tft-data`, `probability`)
+
+**Task completed:** Full dashboard redesign — dark gaming theme, champion selector, cost-tier color system, cumulative odds line chart, and stats summary panel with per-roll distribution.
+
+**Reasoning:** Previous table-only UI had no visual hierarchy or gaming feel. Reference image (dark charcoal + amber/gold accents + gradient area charts) provided the direction. TFT-specific cost-tier colors and icons (gold coin, reroll arrows, star, person) give the tool a native feel.
+
+**Decisions made:**
+- **Recharts `AreaChart` with gradient fill:** Matches the reference — amber gradient for P(2★), blue gradient for P(3★). Wrapped in `dynamic(() => import('./OddsChart'), { ssr: false })` to avoid Recharts' `useLayoutEffect` SSR warning in Next.js App Router.
+- **Champion selector as search input:** Typing filters all 63 Set 17 champions by name; selecting auto-sets cost tier. Cost tier buttons remain for manual override. Champion list added directly to `tft-data.ts` (no separate file) since it's set-specific data like the rest.
+- **Three math utilities added to `probability.ts`:**
+  - `singleRollHitProb`: 1 − P(gain 0) for the "hit chance per roll" display.
+  - `singleRollDistribution`: P(gain k) for k=0..5, shown as the per-roll distribution bars.
+  - `expectedRollsTo`: E[N] = 1 + Σ(1 − CDF(k)), truncated at 500 rolls. Returns `Infinity` when `copiesLeft = 0`.
+- **Pool remaining progress bar:** Visual indicator — green/amber/red based on percentage remaining. Shows explicit warning when pool is exhausted (rolling is pointless).
+- **Stats summary:** 4 stat cards (exp. rolls to 2★, exp. rolls to 3★, copies in pool, rolls available) + per-roll copy distribution bars. Expected gold = expected rolls × 2.
+- **Color scheme:** `#09090f` background, `#12121a` cards, `#1e1e2e` borders, `#f5a623` amber accent. Cost tiers: gray/green/blue/purple/gold matching in-game colors.
+
+**Future concerns:**
+- `expectedRollsTo` with 500-roll truncation underestimates when pool is nearly empty (very high expected values). Infinite sum truncation is the intentional approximation.
+- Champion list in `tft-data.ts` will need updating each set — same maintenance cadence as `UNITS_PER_COST`.
+- No URL param sharing yet — state is ephemeral, can't share a specific calculator configuration.
+- Mobile layout: input panel stacks above chart on small screens but per-roll distribution bars can be tight.
+
+**Next recommended step:** URL param serialization for shareable builds, or adding a 2★/3★ target toggle to the chart for players who only care about 2★.

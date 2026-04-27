@@ -49,6 +49,45 @@ export const UNITS_PER_COST: Record<CostTier, number> = {
   5: 10, // Bard Blitzcrank Fiora Graves Jhin Morgana Shen Sona Vex Zed
 };
 
+// ─── Champion roster (Set 17) ────────────────────────────────────────────────
+
+export interface Champion {
+  name: string;
+  cost: CostTier;
+}
+
+export const CHAMPIONS: Champion[] = [
+  // 1-cost
+  { name: 'Aatrox', cost: 1 }, { name: 'Briar', cost: 1 }, { name: 'Caitlyn', cost: 1 },
+  { name: "Cho'Gath", cost: 1 }, { name: 'Ezreal', cost: 1 }, { name: 'Leona', cost: 1 },
+  { name: 'Lissandra', cost: 1 }, { name: 'Nasus', cost: 1 }, { name: 'Poppy', cost: 1 },
+  { name: "Rek'Sai", cost: 1 }, { name: 'Talon', cost: 1 }, { name: 'Teemo', cost: 1 },
+  { name: 'Twisted Fate', cost: 1 }, { name: 'Veigar', cost: 1 },
+  // 2-cost
+  { name: 'Akali', cost: 2 }, { name: "Bel'Veth", cost: 2 }, { name: 'Gnar', cost: 2 },
+  { name: 'Gragas', cost: 2 }, { name: 'Gwen', cost: 2 }, { name: 'Jax', cost: 2 },
+  { name: 'Jinx', cost: 2 }, { name: 'Meepsie', cost: 2 }, { name: 'Milio', cost: 2 },
+  { name: 'Mordekaiser', cost: 2 }, { name: 'Pantheon', cost: 2 }, { name: 'Pyke', cost: 2 },
+  { name: 'Zoe', cost: 2 },
+  // 3-cost
+  { name: 'Aurora', cost: 3 }, { name: 'Diana', cost: 3 }, { name: 'Fizz', cost: 3 },
+  { name: 'Illaoi', cost: 3 }, { name: "Kai'Sa", cost: 3 }, { name: 'Lulu', cost: 3 },
+  { name: 'Maokai', cost: 3 }, { name: 'Miss Fortune', cost: 3 }, { name: 'Ornn', cost: 3 },
+  { name: 'Rhaast', cost: 3 }, { name: 'Samira', cost: 3 }, { name: 'Urgot', cost: 3 },
+  { name: 'Viktor', cost: 3 },
+  // 4-cost
+  { name: 'Aurelion Sol', cost: 4 }, { name: 'Corki', cost: 4 }, { name: 'Karma', cost: 4 },
+  { name: 'Kindred', cost: 4 }, { name: 'LeBlanc', cost: 4 }, { name: 'Master Yi', cost: 4 },
+  { name: 'Nami', cost: 4 }, { name: 'Nunu', cost: 4 }, { name: 'Rammus', cost: 4 },
+  { name: 'Riven', cost: 4 }, { name: 'Tahm Kench', cost: 4 }, { name: 'Xayah', cost: 4 },
+  { name: 'The Mighty Mech', cost: 4 },
+  // 5-cost
+  { name: 'Bard', cost: 5 }, { name: 'Blitzcrank', cost: 5 }, { name: 'Fiora', cost: 5 },
+  { name: 'Graves', cost: 5 }, { name: 'Jhin', cost: 5 }, { name: 'Morgana', cost: 5 },
+  { name: 'Shen', cost: 5 }, { name: 'Sona', cost: 5 }, { name: 'Vex', cost: 5 },
+  { name: 'Zed', cost: 5 },
+];
+
 // ─── Derived ──────────────────────────────────────────────────────────────────
 
 // Total copies of each cost tier in a fresh pool (before any units are purchased).

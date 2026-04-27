@@ -133,3 +133,36 @@ export function computeRollOdds(
 
   return results;
 }
+
+// P(seeing at least 1 copy of desired unit in a single roll from current state).
+export function singleRollHitProb(copiesOwned: number, params: TransitionParams): number {
+  return 1 - shopTransitionProb(copiesOwned, copiesOwned, params);
+}
+
+// Distribution of copies gained in a single roll: result[k] = P(gain exactly k copies).
+export function singleRollDistribution(copiesOwned: number, params: TransitionParams): number[] {
+  return Array.from({ length: SHOP_SLOTS + 1 }, (_, gained) =>
+    shopTransitionProb(copiesOwned, copiesOwned + gained, params),
+  );
+}
+
+// Expected number of rolls to first reach target copies.
+// Uses E[N] = Σ_{n=0}^{∞} P(N > n) = 1 + Σ_{k=1}^{∞} (1 − CDF(k)).
+// Returns Infinity when copiesLeft = 0 (target unreachable).
+export function expectedRollsTo(
+  copiesOwned: number,
+  target: 'twoStar' | 'threeStar',
+  params: TransitionParams,
+): number {
+  const targetCopies = target === 'twoStar' ? COPIES_FOR_2STAR : COPIES_FOR_3STAR;
+  if (copiesOwned >= targetCopies) return 0;
+  if (params.copiesLeft <= 0) return Infinity;
+
+  const results = computeRollOdds(copiesOwned, params, 500);
+  let expected = 1; // P(N > 0): haven't rolled yet, not at target
+  for (const r of results) {
+    const cumP = target === 'twoStar' ? r.p2Star : r.p3Star;
+    expected += 1 - cumP;
+  }
+  return expected;
+}
