@@ -9,7 +9,9 @@ import {
   singleRollHitProb,
   singleRollDistribution,
   expectedRollsTo,
+  computeRollOdds,
   type TransitionParams,
+  type RollResult,
 } from '@/lib/probability';
 
 const OddsChart = dynamic(() => import('./OddsChart'), {
@@ -296,8 +298,7 @@ function InputPanel() {
 
 // ─── Results panel (chart) ───────────────────────────────────────────────────
 
-function ResultsPanel({ params, copiesOwned }: { params: TransitionParams; copiesOwned: number }) {
-  const results = useCalculatorStore(s => s.rollResults());
+function ResultsPanel({ params, copiesOwned, results }: { params: TransitionParams; copiesOwned: number; results: RollResult[] }) {
   const hitProb = singleRollHitProb(copiesOwned, params);
 
   return (
@@ -346,7 +347,7 @@ function StatCard({ label, value, sub, accent = false }: { label: string; value:
   );
 }
 
-function StatsPanel({ params, copiesOwned }: { params: TransitionParams; copiesOwned: number }) {
+function StatsPanel({ params, copiesOwned, gold }: { params: TransitionParams; copiesOwned: number; gold: number }) {
   const distribution = singleRollDistribution(copiesOwned, params);
   const exp2 = expectedRollsTo(copiesOwned, 'twoStar', params);
   const exp3 = expectedRollsTo(copiesOwned, 'threeStar', params);
@@ -377,8 +378,8 @@ function StatsPanel({ params, copiesOwned }: { params: TransitionParams; copiesO
         />
         <StatCard
           label="Rolls available"
-          value={`${Math.floor(useCalculatorStore.getState().gold / 2)}`}
-          sub={`${useCalculatorStore.getState().gold}g budget`}
+          value={`${Math.floor(gold / 2)}`}
+          sub={`${gold}g budget`}
         />
       </div>
 
@@ -414,11 +415,13 @@ function StatsPanel({ params, copiesOwned }: { params: TransitionParams; copiesO
 
 export default function CalculatorPanel() {
   const store = useCalculatorStore();
-  const { level, unitCost, copiesOwned, copiesTaken } = store;
+  const { level, unitCost, copiesOwned, copiesTaken, gold } = store;
 
   const copiesLeft = Math.max(COPIES_PER_UNIT[unitCost] - copiesOwned - copiesTaken, 0);
   const costsLeft = Math.max(TOTAL_POOL[unitCost] - copiesOwned - copiesTaken, 0);
   const params: TransitionParams = { level, unitCost, copiesLeft, costsLeft };
+  // Compute once here — avoids passing a selector that returns a new array (infinite loop).
+  const results = computeRollOdds(copiesOwned, params, Math.floor(gold / 2));
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-7xl mx-auto w-full">
@@ -429,8 +432,8 @@ export default function CalculatorPanel() {
 
       {/* Right: chart + stats */}
       <div className="flex flex-col gap-4 flex-1 min-w-0">
-        <ResultsPanel params={params} copiesOwned={copiesOwned} />
-        <StatsPanel params={params} copiesOwned={copiesOwned} />
+        <ResultsPanel params={params} copiesOwned={copiesOwned} results={results} />
+        <StatsPanel params={params} copiesOwned={copiesOwned} gold={gold} />
       </div>
     </div>
   );
