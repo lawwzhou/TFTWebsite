@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PageNav from '@/components/PageNav';
 import {
   INTEREST_TABLE,
   WIN_STREAK,
@@ -468,9 +469,19 @@ function DecisionGuide() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const NAV_SECTIONS = [
+  { id: 'income-calculator', label: 'Income Calculator' },
+  { id: 'interest',          label: 'Interest'          },
+  { id: 'streaks',           label: 'Streaks'           },
+  { id: 'leveling',          label: 'XP & Leveling'     },
+  { id: 'when-to-roll',      label: 'When to Roll'      },
+];
+
 export default function EconomyPage() {
   return (
     <main className="flex-1">
+      <PageNav sections={NAV_SECTIONS} />
+
       <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-5">
         <div className="flex items-center justify-between">
           <div>
@@ -480,16 +491,18 @@ export default function EconomyPage() {
           <span className="text-xs text-gray-600 bg-[#12121a] border border-[#1e1e2e] px-3 py-1.5 rounded-lg">Set 17 · Space Gods</span>
         </div>
 
-        <IncomeCalculator />
+        <section id="income-calculator" className="scroll-mt-28">
+          <IncomeCalculator />
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <InterestSection />
-          <StreakSection />
+          <section id="interest" className="scroll-mt-28"><InterestSection /></section>
+          <section id="streaks" className="scroll-mt-28"><StreakSection /></section>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <LevelingSection />
-          <DecisionGuide />
+          <section id="leveling" className="scroll-mt-28"><LevelingSection /></section>
+          <section id="when-to-roll" className="scroll-mt-28"><DecisionGuide /></section>
         </div>
       </div>
     </main>

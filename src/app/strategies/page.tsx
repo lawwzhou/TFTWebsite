@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PageNav from '@/components/PageNav';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -483,6 +484,17 @@ function StageReference() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const NAV_SECTIONS = [
+  { id: 'reroll-cheap',    label: 'Reroll (1/2-cost)' },
+  { id: 'reroll-3cost',    label: '3-Cost Reroll'      },
+  { id: 'fast8',           label: 'Fast 8'             },
+  { id: 'fast9',           label: 'Fast 9'             },
+  { id: 'slow-roll',       label: 'Slow Roll'          },
+  { id: 'stage-reference', label: 'Stage Reference'    },
+];
+
+const STRATEGY_IDS = new Set(STRATEGIES.map(s => s.id));
+
 export default function StrategiesPage() {
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -490,8 +502,15 @@ export default function StrategiesPage() {
     setOpenId(prev => prev === id ? null : id);
   }
 
+  // When navigating via PageNav: open the accordion for strategy sections
+  function handleNavigate(id: string) {
+    if (STRATEGY_IDS.has(id)) setOpenId(id);
+  }
+
   return (
     <main className="flex-1">
+      <PageNav sections={NAV_SECTIONS} maxWidth="max-w-4xl" onNavigate={handleNavigate} />
+
       <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col gap-5">
         <div className="flex items-center justify-between">
           <div>
@@ -504,20 +523,23 @@ export default function StrategiesPage() {
           </div>
         </div>
 
-        {/* Strategy cards — accordion */}
+        {/* Strategy cards — accordion, each with its own scroll target */}
         <div className="flex flex-col gap-3">
           {STRATEGIES.map(s => (
-            <StrategyCard
-              key={s.id}
-              s={s}
-              open={openId === s.id}
-              onToggle={() => toggle(s.id)}
-            />
+            <div key={s.id} id={s.id} className="scroll-mt-28">
+              <StrategyCard
+                s={s}
+                open={openId === s.id}
+                onToggle={() => toggle(s.id)}
+              />
+            </div>
           ))}
         </div>
 
         {/* Stage reference table */}
-        <StageReference />
+        <div id="stage-reference" className="scroll-mt-28">
+          <StageReference />
+        </div>
 
         <p className="text-xs text-gray-600 text-center pb-4">
           Stage timings are guidelines for standard lobbies. Augments, contested units, and HP deviations all affect the optimal line.
