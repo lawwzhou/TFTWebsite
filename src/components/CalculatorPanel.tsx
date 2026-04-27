@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect } from 'react';
-import { useCalculatorStore } from '@/store/calculator';
+import { useCalculatorStore, type ModelMode } from '@/store/calculator';
 import type { CostTier, PlayerLevel } from '@/types/tft';
 import { CHAMPIONS, COPIES_PER_UNIT, TOTAL_POOL } from '@/lib/tft-data';
 import {
@@ -318,6 +318,53 @@ function InputPanel() {
         </div>
       </div>
 
+      {/* Model mode pill toggle */}
+      <div>
+        <SectionLabel>Probability model</SectionLabel>
+        <div className="flex bg-[#0d0d14] border border-[#252535] rounded-lg p-0.5">
+          {(['approximate', 'exact'] as ModelMode[]).map(mode => (
+            <button
+              key={mode}
+              onClick={() => store.setModelMode(mode)}
+              className={`flex-1 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
+                store.modelMode === mode
+                  ? 'bg-amber-500 text-black'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-gray-600 mt-1.5 leading-relaxed">
+          {store.modelMode === 'approximate'
+            ? 'Assumes full cost-tier pool. Fast, good enough for most games.'
+            : 'Input how many other same-cost cards are out to get exact odds.'}
+        </p>
+      </div>
+
+      {/* Exact mode: other same-cost copies out */}
+      {store.modelMode === 'exact' && (
+        <div>
+          <SectionLabel>Other same-cost copies out</SectionLabel>
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-500">
+              {store.unitCost}★
+            </div>
+            <NumberInput
+              value={store.otherCostTaken}
+              onChange={store.setOtherCostTaken}
+              min={0}
+              max={TOTAL_POOL[store.unitCost] - maxCopies}
+              className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
+            />
+          </div>
+          <p className="text-[10px] text-gray-600 mt-1 leading-relaxed">
+            Other {store.unitCost}-cost copies bought by all players (not including yours).
+          </p>
+        </div>
+      )}
+
       {/* Pool remaining indicator */}
       {(() => {
         const remaining = Math.max(maxCopies - store.copiesOwned - store.copiesTaken, 0);
@@ -346,14 +393,19 @@ function InputPanel() {
 
 // ─── Results panel (chart) ───────────────────────────────────────────────────
 
-function ResultsPanel({ params, copiesOwned, results }: { params: TransitionParams; copiesOwned: number; results: RollResult[] }) {
+function ResultsPanel({ params, copiesOwned, results, modelMode }: { params: TransitionParams; copiesOwned: number; results: RollResult[]; modelMode: string }) {
   const hitProb = singleRollHitProb(copiesOwned, params);
 
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">Cumulative Roll Odds</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-white">Cumulative Roll Odds</p>
+            <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${modelMode === 'exact' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>
+              {modelMode}
+            </span>
+          </div>
           <p className="text-xs text-gray-500 mt-0.5">Probability of hitting by roll N</p>
         </div>
         <div className="text-right">
@@ -463,10 +515,13 @@ function StatsPanel({ params, copiesOwned, gold }: { params: TransitionParams; c
 
 export default function CalculatorPanel() {
   const store = useCalculatorStore();
-  const { level, unitCost, copiesOwned, copiesTaken, gold } = store;
+  const { level, unitCost, copiesOwned, copiesTaken, gold, modelMode, otherCostTaken } = store;
 
   const copiesLeft = Math.max(COPIES_PER_UNIT[unitCost] - copiesOwned - copiesTaken, 0);
-  const costsLeft = Math.max(TOTAL_POOL[unitCost] - copiesOwned - copiesTaken, 0);
+  const costsLeft = Math.max(
+    TOTAL_POOL[unitCost] - copiesOwned - copiesTaken - (modelMode === 'exact' ? otherCostTaken : 0),
+    0,
+  );
   const params: TransitionParams = { level, unitCost, copiesLeft, costsLeft };
   // Compute once here — avoids passing a selector that returns a new array (infinite loop).
   const results = computeRollOdds(copiesOwned, params, Math.floor(gold / 2));
@@ -480,7 +535,7 @@ export default function CalculatorPanel() {
 
       {/* Right: chart + stats */}
       <div className="flex flex-col gap-4 flex-1 min-w-0">
-        <ResultsPanel params={params} copiesOwned={copiesOwned} results={results} />
+        <ResultsPanel params={params} copiesOwned={copiesOwned} results={results} modelMode={modelMode} />
         <StatsPanel params={params} copiesOwned={copiesOwned} gold={gold} />
       </div>
     </div>

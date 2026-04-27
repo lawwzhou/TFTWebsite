@@ -130,3 +130,23 @@
 - Mobile layout: input panel stacks above chart on small screens but per-roll distribution bars can be tight.
 
 **Next recommended step:** URL param serialization for shareable builds, or adding a 2★/3★ target toggle to the chart for players who only care about 2★.
+
+---
+
+## 2026-04-26 · Exact model toggle
+
+**Task completed:** Pill toggle in the input panel switching between Approximate and Exact probability models. Exact mode adds an "Other same-cost copies out" input that feeds into `costsLeft`.
+
+**Reasoning:** The approximate model derives `costsLeft` only from the player's own unit's copies being removed. In reality, every unit bought by any player depletes the total cost-tier pool. Players who are watching the game can count how many 3-costs (for example) opponents have bought, making the exact model meaningfully more accurate.
+
+**Decisions made:**
+- No new math required — `costsLeft` in `TransitionParams` was already the right abstraction. The toggle just changes how `costsLeft` is derived: `approximate = TOTAL_POOL - owned - taken`, `exact = TOTAL_POOL - owned - taken - otherCostTaken`.
+- Added `modelMode: 'approximate' | 'exact'` and `otherCostTaken: number` to the Zustand store. Exact-mode input is hidden in approximate mode so it doesn't clutter the default UI.
+- Added a model badge ("approximate" / "exact") to the ResultsPanel header so the user always knows which model is active.
+- Max for `otherCostTaken` is capped at `TOTAL_POOL[unitCost] - maxCopies` (total pool minus your unit's copies) to prevent nonsensical values.
+
+**Future concerns:**
+- In exact mode, `costsLeft` can go to 0 if the user inputs very large `otherCostTaken`, returning `∞` expected rolls. This is correct but might be confusing without context.
+- URL param sharing would need to serialize `modelMode` and `otherCostTaken` as well.
+
+**Next recommended step:** URL param sharing so calculator states can be linked/shared.
