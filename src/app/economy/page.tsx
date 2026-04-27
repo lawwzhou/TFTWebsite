@@ -495,15 +495,21 @@ export default function EconomyPage() {
           <IncomeCalculator />
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <section id="interest" className="scroll-mt-28"><InterestSection /></section>
-          <section id="streaks" className="scroll-mt-28"><StreakSection /></section>
-        </div>
+        <section id="interest" className="scroll-mt-28">
+          <InterestSection />
+        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <section id="leveling" className="scroll-mt-28"><LevelingSection /></section>
-          <section id="when-to-roll" className="scroll-mt-28"><DecisionGuide /></section>
-        </div>
+        <section id="streaks" className="scroll-mt-28">
+          <StreakSection />
+        </section>
+
+        <section id="leveling" className="scroll-mt-28">
+          <LevelingSection />
+        </section>
+
+        <section id="when-to-roll" className="scroll-mt-28">
+          <DecisionGuide />
+        </section>
       </div>
     </main>
   );
