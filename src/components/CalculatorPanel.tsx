@@ -74,7 +74,7 @@ function PersonIcon() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-2">
+    <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
       {children}
     </p>
   );
@@ -82,7 +82,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 ${className}`}>
+    <div className={`bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 ${className}`}>
       {children}
     </div>
   );
@@ -172,7 +172,7 @@ function ChampionSelector({
         <div className="absolute z-20 mt-1 w-full bg-[#12121a] border border-[#252535] rounded-lg overflow-auto max-h-48 shadow-2xl">
           {grouped.map(({ cost, champions }) => (
             <div key={cost}>
-              <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${COST_STYLE[cost].text} bg-[#0d0d14]`}>
+              <div className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${COST_STYLE[cost].text} bg-[#0d0d14]`}>
                 {cost}-cost
               </div>
               {champions.map(c => (
@@ -229,7 +229,7 @@ function InputPanel() {
               <button
                 key={cost}
                 onClick={() => { store.setUnitCost(cost); setSelectedChampion(''); }}
-                className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition-all ${s.bg} ${s.text} ${active ? `ring-2 ${s.ring} brightness-110` : 'opacity-40 hover:opacity-70'}`}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${s.bg} ${s.text} ${active ? `ring-2 ${s.ring} brightness-110` : 'opacity-40 hover:opacity-70'}`}
               >
                 {cost}
               </button>
@@ -247,7 +247,7 @@ function InputPanel() {
               <button
                 key={level}
                 onClick={() => store.setLevel(level as PlayerLevel)}
-                className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`py-2 rounded-lg text-sm font-semibold transition-all ${
                   active
                     ? 'bg-amber-500 text-black ring-1 ring-amber-400'
                     : 'bg-[#0d0d14] border border-[#1e1e2e] text-gray-400 hover:border-amber-500/30 hover:text-gray-200'
@@ -327,7 +327,7 @@ function InputPanel() {
             <button
               key={mode}
               onClick={() => store.setModelMode(mode)}
-              className={`flex-1 py-1.5 rounded-md text-xs font-semibold capitalize transition-all ${
+              className={`flex-1 py-2 rounded-md text-sm font-semibold capitalize transition-all ${
                 store.modelMode === mode
                   ? 'bg-amber-500 text-black'
                   : 'text-gray-400 hover:text-gray-200'
@@ -337,7 +337,7 @@ function InputPanel() {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-600 mt-1.5 leading-relaxed">
+        <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
           {store.modelMode === 'approximate'
             ? 'Assumes full cost-tier pool. Fast, good enough for most games.'
             : 'Input how many other same-cost cards are out to get exact odds.'}
@@ -349,7 +349,7 @@ function InputPanel() {
         <div>
           <SectionLabel>Other same-cost copies out</SectionLabel>
           <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-500">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500">
               {store.unitCost}★
             </div>
             <NumberInput
@@ -360,7 +360,7 @@ function InputPanel() {
               className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
           </div>
-          <p className="text-[10px] text-gray-600 mt-1 leading-relaxed">
+          <p className="text-xs text-gray-600 mt-1 leading-relaxed">
             Other {store.unitCost}-cost copies bought by all players (not including yours).
           </p>
         </div>
@@ -373,7 +373,7 @@ function InputPanel() {
         const color = pct > 60 ? 'bg-green-500' : pct > 30 ? 'bg-amber-500' : 'bg-red-500';
         return (
           <div>
-            <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+            <div className="flex justify-between text-xs text-gray-500 mb-1">
               <span>Pool remaining</span>
               <span className={remaining === 0 ? 'text-red-400' : 'text-gray-400'}>
                 {remaining} / {maxCopies} copies
@@ -383,7 +383,7 @@ function InputPanel() {
               <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
             </div>
             {remaining === 0 && (
-              <p className="text-[10px] text-red-400 mt-1">No copies left in pool — rolling won't find this unit.</p>
+              <p className="text-xs text-red-400 mt-1">No copies left in pool — rolling won't find this unit.</p>
             )}
           </div>
         );
@@ -402,27 +402,27 @@ function ResultsPanel({ params, copiesOwned, results, modelMode }: { params: Tra
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-white">Cumulative Roll Odds</p>
-            <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${modelMode === 'exact' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>
+            <p className="text-base font-semibold text-white">Cumulative Roll Odds</p>
+            <span className={`text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${modelMode === 'exact' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'}`}>
               {modelMode}
             </span>
             <CopyLinkButton />
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">Probability of hitting by roll N</p>
+          <p className="text-sm text-gray-500 mt-0.5">Probability of hitting by roll N</p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-gray-500 mb-0.5">Hit chance / roll</p>
-          <p className="text-xl font-bold font-mono" style={{ color: hitProb > 0.2 ? '#f5a623' : '#ef4444' }}>
+          <p className="text-xs text-gray-500 mb-0.5">Hit chance / roll</p>
+          <p className="text-2xl font-bold font-mono" style={{ color: hitProb > 0.2 ? '#f5a623' : '#ef4444' }}>
             {(hitProb * 100).toFixed(1)}%
           </p>
         </div>
       </div>
 
-      <div className="h-56">
+      <div className="h-64">
         <OddsChart results={results} />
       </div>
 
-      <div className="flex gap-3 text-xs text-gray-500">
+      <div className="flex gap-3 text-sm text-gray-500">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-0.5 bg-amber-400 inline-block rounded" />
           P(2★) cumulative
@@ -441,10 +441,10 @@ function ResultsPanel({ params, copiesOwned, results, modelMode }: { params: Tra
 
 function StatCard({ label, value, sub, accent = false }: { label: string; value: string; sub?: string; accent?: boolean }) {
   return (
-    <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-3 flex flex-col gap-1">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">{label}</p>
-      <p className={`text-2xl font-bold font-mono ${accent ? 'text-amber-400' : 'text-white'}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-500">{sub}</p>}
+    <div className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4 flex flex-col gap-1">
+      <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">{label}</p>
+      <p className={`text-3xl font-bold font-mono ${accent ? 'text-amber-400' : 'text-white'}`}>{value}</p>
+      {sub && <p className="text-sm text-gray-500">{sub}</p>}
     </div>
   );
 }
@@ -459,7 +459,7 @@ function StatsPanel({ params, copiesOwned, gold }: { params: TransitionParams; c
 
   return (
     <Card className="flex flex-col gap-4">
-      <p className="text-sm font-semibold text-white">Stats Summary</p>
+      <p className="text-base font-semibold text-white">Stats Summary</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <StatCard
@@ -492,18 +492,18 @@ function StatsPanel({ params, copiesOwned, gold }: { params: TransitionParams; c
             const pct = p * 100;
             const barColor = gained === 0 ? 'bg-gray-700' : gained === 1 ? 'bg-amber-500' : gained === 2 ? 'bg-amber-400' : 'bg-amber-300';
             return (
-              <div key={gained} className="flex items-center gap-2.5 text-xs">
-                <div className="flex items-center gap-1 w-20 shrink-0 text-gray-400">
+              <div key={gained} className="flex items-center gap-2.5 text-sm">
+                <div className="flex items-center gap-1.5 w-24 shrink-0 text-gray-400">
                   <RerollIcon />
                   <span className="font-mono">{gained === 0 ? 'miss' : `+${gained}`}</span>
                 </div>
-                <div className="flex-1 bg-[#0d0d14] rounded-full h-2 overflow-hidden">
+                <div className="flex-1 bg-[#0d0d14] rounded-full h-2.5 overflow-hidden">
                   <div
                     className={`h-full ${barColor} rounded-full transition-all duration-300`}
                     style={{ width: `${Math.min(pct, 100)}%` }}
                   />
                 </div>
-                <span className="font-mono text-gray-300 w-12 text-right">{pct.toFixed(1)}%</span>
+                <span className="font-mono text-gray-300 w-14 text-right">{pct.toFixed(1)}%</span>
               </div>
             );
           })}
@@ -602,7 +602,7 @@ function CopyLinkButton() {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-amber-400 transition-colors px-2 py-1 rounded-lg hover:bg-[#1e1e2e]"
+      className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 transition-colors px-2 py-1 rounded-lg hover:bg-[#1e1e2e]"
     >
       {copied ? (
         <>
@@ -644,7 +644,7 @@ export default function CalculatorPanel() {
       <URLSync />
       <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-7xl mx-auto w-full">
       {/* Left: inputs */}
-      <div className="w-full lg:w-64 shrink-0">
+      <div className="w-full lg:w-80 shrink-0">
         <InputPanel />
       </div>
 

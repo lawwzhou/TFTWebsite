@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV = [
-  { href: '/',        label: 'Rolling Odds' },
-  { href: '/economy', label: 'Economy'      },
+  { href: '/',            label: 'Rolling Odds' },
+  { href: '/economy',     label: 'Economy'      },
+  { href: '/strategies',  label: 'Strategies'   },
 ];
 
 export default function SiteHeader() {
