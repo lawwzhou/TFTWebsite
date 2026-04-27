@@ -219,6 +219,7 @@ function InputPanel() {
             min={0}
             step={2}
             value={store.gold}
+            onFocus={e => e.target.select()}
             onChange={e => store.setGold(Math.max(0, Number(e.target.value)))}
             className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
           />
@@ -240,6 +241,7 @@ function InputPanel() {
               min={0}
               max={9}
               value={store.copiesOwned}
+              onFocus={e => e.target.select()}
               onChange={e => store.setCopiesOwned(Math.min(9, Math.max(0, Number(e.target.value))))}
               className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
@@ -260,6 +262,7 @@ function InputPanel() {
               min={0}
               max={maxCopies}
               value={store.copiesTaken}
+              onFocus={e => e.target.select()}
               onChange={e => store.setCopiesTaken(Math.min(maxCopies, Math.max(0, Number(e.target.value))))}
               className="w-full bg-[#0d0d14] border border-[#252535] text-white text-sm rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-amber-500/50 transition-colors"
             />
