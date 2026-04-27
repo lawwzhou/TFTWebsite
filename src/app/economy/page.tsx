@@ -236,22 +236,31 @@ function InterestSection() {
                     : isKey ? 'bg-[#0d0d14] border border-[#1e1e2e]'
                     : 'bg-[#0d0d14] border border-[#0d0d14] opacity-50'
             }`}>
-              <div className="w-24 shrink-0">
+              {/* Gold range + Max badge (left) */}
+              <div className="w-36 shrink-0 flex items-center gap-2">
                 <span className="font-mono text-base font-semibold text-white">
                   {row.max === null ? `${row.min}g+` : `${row.min}–${row.max}g`}
                 </span>
+                {isMax && (
+                  <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                    Max
+                  </span>
+                )}
               </div>
+
+              {/* Bar */}
               <div className="flex-1 flex gap-1.5">
                 {[1, 2, 3, 4, 5].map(i => (
                   <div key={i} className={`h-2.5 flex-1 rounded-full transition-all ${i <= row.interest ? 'bg-amber-400' : 'bg-[#1e1e2e]'}`} />
                 ))}
               </div>
-              <div className="w-20 text-right shrink-0 flex items-center justify-end gap-2">
+
+              {/* Interest value (right) — just the number + icon, no badge */}
+              <div className="w-16 shrink-0 flex items-center justify-end gap-1.5">
                 {row.interest > 0 ? (
                   <>
                     <span className={`font-mono font-bold text-base ${isMax ? 'text-amber-400' : 'text-amber-300'}`}>+{row.interest}g</span>
                     <GoldIcon />
-                    {isMax && <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider">Max</span>}
                   </>
                 ) : (
                   <span className="font-mono text-base text-gray-600">+0g</span>
